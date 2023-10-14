@@ -32,10 +32,7 @@ int Autocompleter::size_recurse(Node* p)
         return 0;
     }
 
-    int leftSize =  size_recurse(p->left);
-    int rightSize = size_recurse(p->right);
-
-    return leftSize + rightSize + 1;
+    return 1 + size_recurse(p->left) + size_recurse(p->right);
 }
 
 void Autocompleter::completions(string x, vector<string> &T)
@@ -65,6 +62,12 @@ void Autocompleter::completions_recurse(string x, Node* p, vector<Entry> &C)
     else
     {
         completions_recurse(x,p->left, C);
+        C.push_back(p->e);
+        if(C.size()>2)
+        {
+            C.pop_back();
+        }
+        completions_recurse(x,p->right,C);
     }
 }
 
@@ -96,5 +99,55 @@ void Autocompleter::insert_recurse(Entry e, Node*& p)
 
     rebalance(p);
 
+}
+
+void Autocompleter::rebalance(Node*& p)
+{
+    int balance = height(p->left)-height(p->right);
+
+    if (balance > 1)
+    {
+        int leftBalance = height(p->left->left) - height(p->left->right);
+
+        if (leftBalance < 0 )
+        {
+            left_rotate(p->left);
+        }
+        right_rotate(p);
+    }
+
+    else if (balance < -1)
+    {
+        int rightBalance = height(p->right->left) - height(p->right->right);
+        if (rightBalance > 0)
+        {
+            right_rotate(p->right);
+        }
+        left_rotate(p);
+    }
+
+    update_height(p);
+}
+
+void Autocompleter::right_rotate(Node*& p)
+{
+    Node* newRoot = p->left;
+    p->left = newRoot->right;
+    newRoot->right = p;
+    p = newRoot;
+
+    update_height(p->right);
+    update_height(p);
+}
+
+void Autocompleter::left_rotate(Node*& p)
+{
+    Node* newRoot = p->right;
+    p->right = newRoot->left;
+    newRoot->left = p;
+    p = newRoot;
+
+    update_height(p->left);
+    update_height(p);
 }
 
