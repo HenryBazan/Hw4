@@ -8,7 +8,6 @@ using namespace std;
 Autocompleter::Autocompleter()
 {
     root = nullptr;
-
 }
 
 void Autocompleter::insert(string x, int freq)
